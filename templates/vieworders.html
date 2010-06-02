@@ -1,0 +1,19 @@
+{% if orders %}
+    <table border="1">
+        <tr>
+            <th>Total Guests = {{ total }}</th>
+        </tr>
+        {% for order in orders %}
+            <tr>
+            {% if order.guests == "0" %}
+                <td>{{ order.person }}</td>
+            {% else %}
+                <td>{{ order.person }} and {{ order.guests }} guests</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+    </table> 
+
+{% else %}
+    <p>No lunch orders today ... you eat alone!</p>
+{% endif %}
