@@ -1,5 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us" >
+
+<head>
+<title>Order Lunch</title>
+</head>
+
+<body>
+<h2>Order Lunch</h2>
+{% if sameday %}
+<p>
+Sorry, but you may not submit more than one order per day.
+</p>
+{% else %}
+<p>
+Submit this form to place your lunch order for today.  Add guests if 
+you will be bringing anyone with you, or leave it at 0 if not.
+</p>
+<div style="margin-left: 2em;">
 <form method="post" action="">
-    {{ formset }}
+  <table>
+    {{ form }}
+    <tr>
+      <th><label>Total:</label></th>
+      <td><input type="text" readonly="true" name="total" value="1" id="id_total" /></td>
+    </tr>
     {% csrf_token %}
-    <input type="submit" value="Submit" />
+    <tr><td></td><td><input type="submit" value="Place Lunch Order" /></td></tr>
+  </table>
 </form>
+<script type="text/javascript">
+    function on_change_guests() {
+        var x = parseInt(document.forms[0].elements["id_guests"].value);
+        if (isNaN(x)) x = 0;
+        document.forms[0].elements["id_total"].value = x+1;
+    }
+    document.forms[0].elements["id_guests"].onkeyup = on_change_guests
+    document.forms[0].elements["id_guests"].onclick = on_change_guests
+</script>
+</div>
+<p style="font-size: 0.77em;">
+Once you submit, you cannot go back and cancel your order.  However, if you don't submit, you may starve.  It's up to you.
+</p>
+{% endif %}
+</body>
+
+</html>

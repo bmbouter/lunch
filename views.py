@@ -2,6 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 from lunch.forms import OrderForm
 from lunch.models import Order
@@ -10,25 +11,24 @@ import datetime
 
 @login_required
 def placeOrder(request):
-    username = request.session['username']
-    if request.method == 'POST': # If the form has been submitted...
-        form = OrderForm(request.POST) # A form bound to the POST data
+    sameday = False
+    # TODO: if lunch was already submitted today...
+    todays_orders = Order.objects.filter(user=request.user,date=datetime.date.today())
+    if todays_orders.exists():
+        sameday = True
+    
+    if request.method == 'POST' and not sameday: # If the form has been submitted...
+        form = OrderForm(request.POST, instance=Order(user=request.user)) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             # Process the data in form.cleaned_data
             form.save()
-            return HttpResponseRedirect('/lunch/thanks') # Redirect after POST
+            return HttpResponseRedirect('/lunch/thanks/') # Redirect after POST
     else:
-        f = OrderForm() # An unbound form
-        new_order = f.save(commit=False)
-        new_order.username = 'bmbouter'
-        form = OrderForm(instance=new_order) # The username in the form
-
-    return HttpResponse(username)
+        form = OrderForm() # An unbound form
 
     return render_to_response('orderform.html',
-                            {'formset': form,
-                             'username' : username },
-                            context_instance=RequestContext(request))
+                               {'form': form, 'username' : request.user.username, 'sameday': sameday },
+                              context_instance=RequestContext(request))
 
 def thanks(request):
     return HttpResponse('Thanks for the order!')
