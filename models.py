@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+import datetime
+
 class Order(models.Model):
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(default=datetime.date.today)  # no parens on 'today', this is on purpose
     ##username = models.CharField(max_length=64,editable=False)
     user = models.ForeignKey(User)
     guests = models.IntegerField(default=0)

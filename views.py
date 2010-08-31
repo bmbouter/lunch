@@ -8,11 +8,12 @@ from lunch.forms import OrderForm
 from lunch.models import Order
 
 import datetime
+import calendar
 
 @login_required
 def placeOrder(request):
     sameday = False
-    # TODO: if lunch was already submitted today...
+    # if lunch was already submitted today...
     todays_orders = Order.objects.filter(user=request.user,date=datetime.date.today())
     if todays_orders.exists():
         sameday = True
@@ -33,7 +34,35 @@ def placeOrder(request):
 def thanks(request):
     return HttpResponse('Thanks for the order!')
 
-def viewOrders(request, date=datetime.date.today()):
-    orders = Order.objects.filter(date=date)
+def viewOrders(request, date=None):
+    if date:
+        orders = Order.objects.filter(date=date)
+    else:
+        orders = Order.objects.all()
     total = reduce(lambda x,y: 1,orders,0)
     return render_to_response('vieworders.html',{'orders':orders, 'total':total})
+
+
+def viewOrdersSummary(request, year=None, month=None):
+    if not year:
+        year = datetime.date.today().year
+    if not month:
+        month = datetime.date.today().month
+    orders = Order.objects.filter(date__year=year,date__month=month)
+    
+    usertotals = []
+    grandtotal = sum((ord.guests+1) for ord in orders)
+    
+    for user in User.objects.all():
+        uorders = orders.filter(user=user)
+        usertotal = {}
+        usertotal['user'] = user
+        t = sum((ord.guests+1) for ord in uorders)
+        usertotal['sum'] = t
+        usertotal['percent'] = 0.  if grandtotal==0 else  100.*t/float(grandtotal)
+        usertotals.append(usertotal)
+    
+    return render_to_response('orders_summary.html',
+                             {'usertotals':usertotals, 'month':calendar.month_name[month], 
+                              'year':year, 'grandtotal':grandtotal}
+                             )

@@ -1,0 +1,21 @@
+
+<h2>Lunch Orders: {{ month }}, {{ year }}</h2>
+<table border="1">
+  <tr>
+    <th>User</th>
+    <th>Sum</th>
+    <th>Percent</th>
+  </tr>
+  {% for usertotal in usertotals %}
+    <tr>
+      <td>{{ usertotal.user }}</td>
+      <td align="right">{{ usertotal.sum }}</td>
+      <td align="right">{{ usertotal.percent|floatformat:1 }}%</td>
+    </tr>
+  {% endfor %}
+  <tr>
+    <th align="left">Total</th>
+    <th align="right">{{ grandtotal }}</th>
+    <th>&nbsp;</th>
+  </tr>
+</table>
