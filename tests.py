@@ -1,6 +1,7 @@
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse as urlreverse
 
 from models import Order
 
@@ -84,13 +85,16 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
                     username="user%d"%i,
                     email="", 
                     password="password") 
-                for i in range(nusers,5)
+                for i in range(nusers,7)
             ]
         # add orders for this month
         y = self.today.year
         m = self.today.month
         lastmonth = (self.today.replace(day=1) - datetime.timedelta(days=1))
         nextmonth = (self.today.replace(day=1) + datetime.timedelta(days=31)).replace(day=1)
+        
+        self.lastmonth = lastmonth
+        self.nextmonth = nextmonth
         
         D = datetime.date
         U = self.users
@@ -115,14 +119,110 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         
         # user4  tot: 0 (not entered on purpose)
         
-        # TODO:...
+        # user5  tot: 5
+        Order(date=D(y,m,7), user=U[5], guests=1).save()
+        Order(date=D(y,m,8), user=U[5], guests=1).save()
+        Order(date=D(y,m,9), user=U[5], guests=0).save()
+        
+        # user6  tot: 3
+        Order(date=D(y,m,7), user=U[6], guests=0).save()
+        Order(date=D(y,m,8), user=U[6], guests=1).save()
             
     def test_withOrders(self):
         response = self.client.get('/lunch/summary/')
         
-        self.assertEquals(response.context['grandtotal'], 12)
+        self.assertEquals(response.context['grandtotal'], 20)
+        self.assertEquals(response.context['year'], self.today.year)
+        self.assertEquals(response.context['month'], calendar.month_name[self.today.month])
         
-        # TODO...
+        usertotals = response.context['usertotals']
+        usertotals = dict((utot['user'].username,utot) for utot in usertotals)
+        
+        self.assertEquals(usertotals['user0']['sum'], 3)
+        self.assertEquals(usertotals['user1']['sum'], 9)
+        self.assertEquals(usertotals['user2']['sum'], 0)
+        self.assertEquals(usertotals['user3']['sum'], 0)
+        self.assertEquals(usertotals['user4']['sum'], 0)
+        self.assertEquals(usertotals['user5']['sum'], 5)
+        self.assertEquals(usertotals['user6']['sum'], 3)
+            
+        self.assertAlmostEqual(usertotals['user0']['percent'], 15.)
+        self.assertAlmostEqual(usertotals['user1']['percent'], 45.)
+        self.assertAlmostEqual(usertotals['user2']['percent'], 0)
+        self.assertAlmostEqual(usertotals['user3']['percent'], 0)
+        self.assertAlmostEqual(usertotals['user4']['percent'], 0)
+        self.assertAlmostEqual(usertotals['user5']['percent'], 25.)
+        self.assertAlmostEqual(usertotals['user6']['percent'], 15.)
+        
+    def test_datesList(self):
+        today = self.today
+        nextmonth = self.nextmonth
+        lastmonth = self.lastmonth
+        
+        response = self.client.get('/lunch/summary/')
+        
+        dateslist = response.context['dateslist']
+        self.assertEquals(len(dateslist),3)
+        self.assertEquals(
+            dateslist[0]['val'], 
+            urlreverse('lunch-summary-view', kwargs={'year':nextmonth.year,'month':nextmonth.month})
+            )
+        self.assertEquals(
+            dateslist[1]['val'], 
+            urlreverse('lunch-summary-view', kwargs={'year':today.year,'month':today.month})
+            )
+        self.assertEquals(
+            dateslist[2]['val'], 
+            urlreverse('lunch-summary-view', kwargs={'year':lastmonth.year,'month':lastmonth.month})
+            )
+            
+    def test_selectedOption(self):
+        # This test assumes that the 'dateslist' has the dates in descending order.
+        
+        today = self.today
+        nextmonth = self.nextmonth
+        lastmonth = self.lastmonth
+        
+        
+        response = self.client.get('/lunch/summary/')
+        
+        dateslist = response.context['dateslist']
+        self.assertEquals(len(dateslist),3)
+        self.assertEquals(dateslist[0]['selected'],False)
+        self.assertEquals(dateslist[1]['selected'],True) # This month
+        self.assertEquals(dateslist[2]['selected'],False)
+        
+        
+        response = self.client.get(
+            '/lunch/summary/{y}/{m}/'.format(y=today.year,m=today.month)
+            )        
+        dateslist = response.context['dateslist']
+        self.assertEquals(len(dateslist),3)
+        self.assertEquals(dateslist[0]['selected'],False)
+        self.assertEquals(dateslist[1]['selected'],True) # This month
+        self.assertEquals(dateslist[2]['selected'],False)
+        
+        
+        response = self.client.get(
+            '/lunch/summary/{y}/{m}/'.format(y=nextmonth.year,m=nextmonth.month)
+            )        
+        dateslist = response.context['dateslist']
+        self.assertEquals(len(dateslist),3)
+        self.assertEquals(dateslist[0]['selected'],True)
+        self.assertEquals(dateslist[1]['selected'],False) # This month
+        self.assertEquals(dateslist[2]['selected'],False)
+        
+        
+        response = self.client.get(
+            '/lunch/summary/{y}/{m}/'.format(y=lastmonth.year,m=lastmonth.month)
+            )        
+        dateslist = response.context['dateslist']
+        self.assertEquals(len(dateslist),3)
+        self.assertEquals(dateslist[0]['selected'],False)
+        self.assertEquals(dateslist[1]['selected'],False) # This month
+        self.assertEquals(dateslist[2]['selected'],True)
+        
+            
 
 
 #==============================================================================#

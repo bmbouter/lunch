@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse as urlreverse
 
 from lunch.forms import OrderForm
 from lunch.models import Order
@@ -44,10 +45,27 @@ def viewOrders(request, date=None):
 
 
 def viewOrdersSummary(request, year=None, month=None):
-    if not year:
-        year = datetime.date.today().year
-    if not month:
-        month = datetime.date.today().month
+    year = int(year)  if year is not None else  datetime.date.today().year
+    month = int(month)  if month is not None else  datetime.date.today().month
+    
+    # get all months & years in the db
+    values_list = Order.objects.values_list('date', flat=True)
+    unique_dates = set(
+        val.replace(day=1) for val in values_list if isinstance(val, datetime.date)
+        )
+    # also include the current month
+    unique_dates.add(datetime.date.today().replace(day=1))
+    unique_dates = list(unique_dates)
+    unique_dates.sort(reverse=True)
+    
+    # date info to pass to html template
+    dateslist = list(
+                {'title': d.strftime('%b %Y'), 
+                 'val': urlreverse('lunch-summary-view', kwargs={'year':d.year,'month':d.month}), 
+                 'selected': d.month==month and d.year==year} 
+            for d in unique_dates)
+    
+    # orders for given month and year
     orders = Order.objects.filter(date__year=year,date__month=month)
     
     usertotals = []
@@ -64,5 +82,15 @@ def viewOrdersSummary(request, year=None, month=None):
     
     return render_to_response('orders_summary.html',
                              {'usertotals':usertotals, 'month':calendar.month_name[month], 
-                              'year':year, 'grandtotal':grandtotal}
+                              'year':year, 'grandtotal':grandtotal,
+                              'dateslist':dateslist}
                              )
+    
+    
+    
+    
+    
+    
+    
+    
+    
