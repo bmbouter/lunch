@@ -36,6 +36,7 @@ def thanks(request):
     return HttpResponse('Thanks for the order!')
 
 def viewOrders(request, date=None):
+    if date=='today':  date = datetime.date.today()
     if date:
         orders = Order.objects.filter(date=date)
     else:
