@@ -45,7 +45,8 @@ class Lunch_TestCaseBase(TestCase):
 class PlaceOrder_TestCase(Lunch_TestCaseBase):
     def test_basic(self):
         with self.scoped_login('user0', 'password'):
-            response = self.client.get('/lunch/order/')
+            url = urlreverse('lunch-orders-view')
+            response = self.client.get(url)
             self.assertEquals(response.status_code, 200)
             self.assertEquals(response.context['user'],self.users[0])
             
