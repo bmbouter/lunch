@@ -46,12 +46,15 @@ class PlaceOrder_TestCase(Lunch_TestCaseBase):
     def test_basic(self):
         with self.scoped_login('user0', 'password'):
             response = self.client.get('/lunch/order/')
+            self.assertEquals(response.status_code, 200)
             self.assertEquals(response.context['user'],self.users[0])
             
     def test_postBasic(self):
         with self.scoped_login('user0', 'password'):
             data = {'guests':0, 'user':self.users[0], 'date':datetime.date.today()}
             response = self.client.post('/lunch/order/', data)
+            
+            self.assertEquals(response.status_code, 200)
             
             self.assertEquals(Order.objects.all().count(),1)
             order = Order.objects.all()[0]
@@ -64,6 +67,8 @@ class PlaceOrder_TestCase(Lunch_TestCaseBase):
 class OrdersSummary_basic_TestCase(Lunch_TestCaseBase):
     def test_noOrders(self):
         response = self.client.get('/lunch/summary/')
+        
+        self.assertEquals(response.status_code, 200)
         
         self.assertEquals(response.context['grandtotal'], 0)
         self.assertEquals(response.context['year'], self.today.year)
@@ -130,6 +135,7 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
             
     def test_withOrders(self):
         response = self.client.get('/lunch/summary/')
+        self.assertEquals(response.status_code, 200)
         
         self.assertEquals(response.context['grandtotal'], 20)
         self.assertEquals(response.context['year'], self.today.year)
@@ -160,6 +166,7 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         lastmonth = self.lastmonth
         
         response = self.client.get('/lunch/summary/')
+        self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
         self.assertEquals(len(dateslist),3)
@@ -185,6 +192,7 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         
         
         response = self.client.get('/lunch/summary/')
+        self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
         self.assertEquals(len(dateslist),3)
@@ -195,7 +203,9 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         
         response = self.client.get(
             '/lunch/summary/{y}/{m}/'.format(y=today.year,m=today.month)
-            )        
+            )
+        self.assertEquals(response.status_code, 200)
+        
         dateslist = response.context['dateslist']
         self.assertEquals(len(dateslist),3)
         self.assertEquals(dateslist[0]['selected'],False)
@@ -206,6 +216,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         response = self.client.get(
             '/lunch/summary/{y}/{m}/'.format(y=nextmonth.year,m=nextmonth.month)
             )        
+        self.assertEquals(response.status_code, 200)
+        
         dateslist = response.context['dateslist']
         self.assertEquals(len(dateslist),3)
         self.assertEquals(dateslist[0]['selected'],True)
@@ -215,7 +227,9 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         
         response = self.client.get(
             '/lunch/summary/{y}/{m}/'.format(y=lastmonth.year,m=lastmonth.month)
-            )        
+            )
+        self.assertEquals(response.status_code, 200)
+        
         dateslist = response.context['dateslist']
         self.assertEquals(len(dateslist),3)
         self.assertEquals(dateslist[0]['selected'],False)
