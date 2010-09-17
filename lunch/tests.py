@@ -56,7 +56,7 @@ class PlaceOrder_TestCase(Lunch_TestCaseBase):
             url = urlreverse('lunch-placeorder-view')
             response = self.client.post(url, data)
             
-            self.assertEquals(response.status_code, 200)
+            self.assertEquals(response.status_code, 302)  # 302 because this view redirects after an order is submitted
             
             self.assertEquals(Order.objects.all().count(),1)
             order = Order.objects.all()[0]
