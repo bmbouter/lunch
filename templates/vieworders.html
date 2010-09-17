@@ -1,3 +1,9 @@
+
+<form method="post" action="{% url lunch.views.logout %}">
+  {% csrf_token %}
+  <input type="submit" value="Logout" />
+</form>
+
 {% if orders %}
 <table border="1">
   <tr>

@@ -17,7 +17,7 @@ Submit this form to place your lunch order for today.  Add guests if
 you will be bringing anyone with you, or leave it at 0 if not.
 </p>
 <div style="margin-left: 2em;">
-<form method="post" action="">
+<form id="order_form" method="post" action="">
   <table>
     {{ form }}
     <tr>
@@ -28,14 +28,20 @@ you will be bringing anyone with you, or leave it at 0 if not.
     <tr><td></td><td><input type="submit" value="Place Lunch Order" /></td></tr>
   </table>
 </form>
+
+<form method="post" action="{% url lunch.views.logout %}">
+  {% csrf_token %}
+  <input type="submit" value="Logout" />
+</form>
+
 <script type="text/javascript">
     function on_change_guests() {
-        var x = parseInt(document.forms[0].elements["id_guests"].value);
+        var x = parseInt(document.forms["order_form"].elements["id_guests"].value);
         if (isNaN(x)) x = 0;
-        document.forms[0].elements["id_total"].value = x+1;
+        document.forms["order_form"].elements["id_total"].value = x+1;
     }
-    document.forms[0].elements["id_guests"].onkeyup = on_change_guests
-    document.forms[0].elements["id_guests"].onclick = on_change_guests
+    document.forms["order_form"].elements["id_guests"].onkeyup = on_change_guests
+    document.forms["order_form"].elements["id_guests"].onclick = on_change_guests
 </script>
 </div>
 <p style="font-size: 0.77em;">

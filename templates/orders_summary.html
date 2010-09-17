@@ -33,6 +33,11 @@
   </table>
 </form>
 
+<form method="post" action="{% url lunch.views.logout %}">
+  {% csrf_token %}
+  <input type="submit" value="Logout" />
+</form>
+
 <h3>For {{ month }}, {{ year }}</h3>
 
 <table border="1">

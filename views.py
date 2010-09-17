@@ -4,6 +4,7 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse as urlreverse
+from django.contrib.auth import logout as django_logout
 
 from lunch.forms import OrderForm
 from lunch.models import Order
@@ -87,7 +88,9 @@ def viewOrdersSummary(request, year=None, month=None):
                               'dateslist':dateslist}
                              )
     
-    
+def logout(request):
+    django_logout(request)
+    return HttpResponse('Logout successful.')
     
     
     
