@@ -45,15 +45,16 @@ class Lunch_TestCaseBase(TestCase):
 class PlaceOrder_TestCase(Lunch_TestCaseBase):
     def test_basic(self):
         with self.scoped_login('user0', 'password'):
-            url = urlreverse('lunch-orders-view')
+            url = urlreverse('lunch-placeorder-view')
             response = self.client.get(url)
             self.assertEquals(response.status_code, 200)
-            self.assertEquals(response.context['user'],self.users[0])
+            self.assertEquals(response.context['user'], self.users[0])
             
     def test_postBasic(self):
         with self.scoped_login('user0', 'password'):
             data = {'guests':0, 'user':self.users[0], 'date':datetime.date.today()}
-            response = self.client.post('/lunch/order/', data)
+            url = urlreverse('lunch-placeorder-view')
+            response = self.client.post(url, data)
             
             self.assertEquals(response.status_code, 200)
             
@@ -67,7 +68,8 @@ class PlaceOrder_TestCase(Lunch_TestCaseBase):
 
 class OrdersSummary_basic_TestCase(Lunch_TestCaseBase):
     def test_noOrders(self):
-        response = self.client.get('/lunch/summary/')
+        url = urlreverse('lunch-summarytoday-view')
+        response = self.client.get(url)
         
         self.assertEquals(response.status_code, 200)
         
@@ -135,7 +137,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         Order(date=D(y,m,8), user=U[6], guests=1).save()
             
     def test_withOrders(self):
-        response = self.client.get('/lunch/summary/')
+        url = urlreverse('lunch-summarytoday-view')
+        response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         
         self.assertEquals(response.context['grandtotal'], 20)
@@ -166,7 +169,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         nextmonth = self.nextmonth
         lastmonth = self.lastmonth
         
-        response = self.client.get('/lunch/summary/')
+        url = urlreverse('lunch-summarytoday-view')
+        response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
@@ -191,8 +195,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         nextmonth = self.nextmonth
         lastmonth = self.lastmonth
         
-        
-        response = self.client.get('/lunch/summary/')
+        url = urlreverse('lunch-summarytoday-view')
+        response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
@@ -202,9 +206,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         self.assertEquals(dateslist[2]['selected'],False)
         
         
-        response = self.client.get(
-            '/lunch/summary/{y}/{m}/'.format(y=today.year,m=today.month)
-            )
+        url = urlreverse('lunch-summary-view', kwargs={'year':today.year,'month':today.month})
+        response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
@@ -214,9 +217,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         self.assertEquals(dateslist[2]['selected'],False)
         
         
-        response = self.client.get(
-            '/lunch/summary/{y}/{m}/'.format(y=nextmonth.year,m=nextmonth.month)
-            )        
+        url = urlreverse('lunch-summary-view', kwargs={'year':nextmonth.year,'month':nextmonth.month})
+        response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
@@ -226,9 +228,8 @@ class OrdersSummary_TestCase(Lunch_TestCaseBase):
         self.assertEquals(dateslist[2]['selected'],False)
         
         
-        response = self.client.get(
-            '/lunch/summary/{y}/{m}/'.format(y=lastmonth.year,m=lastmonth.month)
-            )
+        url = urlreverse('lunch-summary-view', kwargs={'year':lastmonth.year,'month':lastmonth.month})
+        response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         
         dateslist = response.context['dateslist']
