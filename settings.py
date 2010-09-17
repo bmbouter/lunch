@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'lunch.db',                      # Or path to database file if using sqlite3.
+        'NAME': 'sqlite.db',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -54,11 +54,11 @@ MEDIA_URL = ''
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
-# Examples: "http://lunch.com/media/", "/media/".
+# Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'li@04kg2u8%1#4fjfwu714b%x6kn18$vsiu&7ex-#m!&r9g9-c'
+SECRET_KEY = 'o6pdw0!(e1i5!yhv71u4vr#90o(a(4g2=f!8p-u+o*9w=+*y16'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
