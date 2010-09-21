@@ -98,5 +98,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
 )
 
+
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
