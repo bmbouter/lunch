@@ -92,7 +92,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django_nose',
     'lunch',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
 )
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
